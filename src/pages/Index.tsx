@@ -28,6 +28,7 @@ const Index = () => {
   const [countryData, setCountryData] = useState<Country | null>(null);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
+  const [showImporter, setShowImporter] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -114,7 +115,7 @@ const Index = () => {
 
       {/* Search Section */}
       <div className="max-w-4xl mx-auto px-4 -mt-8 space-y-6">
-        {countries.length === 0 && !loading && (
+        {countries.length < 195 && (
           <DataImporter />
         )}
         
