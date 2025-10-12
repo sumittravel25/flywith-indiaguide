@@ -4,8 +4,9 @@ import { CountrySelector } from "@/components/CountrySelector";
 import { CountryInfoTable } from "@/components/CountryInfoTable";
 import { DataImporter } from "@/components/DataImporter";
 import { Button } from "@/components/ui/button";
-import { Loader2, Globe2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import traviloLogo from "@/assets/travilo-logo.png";
 
 interface Country {
   id: string;
@@ -136,9 +137,8 @@ const Index = () => {
       <div className="bg-gradient-hero text-white py-16 px-4">
         <div className="max-w-4xl mx-auto text-center space-y-4">
           <div className="flex justify-center mb-4">
-            <Globe2 className="h-16 w-16" />
+            <img src={traviloLogo} alt="TRAVILO Logo" className="h-24 w-auto" />
           </div>
-          <h1 className="text-5xl font-bold">Country Info Explorer</h1>
           <p className="text-xl text-white/90">
             Discover essential travel information for Indian travelers worldwide
           </p>
