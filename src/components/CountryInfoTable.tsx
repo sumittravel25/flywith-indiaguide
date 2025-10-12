@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Table,
   TableBody,
@@ -8,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
 
 interface CountryData {
   country_name: string;
@@ -27,6 +30,38 @@ interface CountryInfoTableProps {
 }
 
 export function CountryInfoTable({ country }: CountryInfoTableProps) {
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number> | null>(null);
+  const [loadingRates, setLoadingRates] = useState(false);
+
+  useEffect(() => {
+    const fetchExchangeRates = async () => {
+      // Extract currency code from the currency string (e.g., "Afghan afghani (AFN)" -> "AFN")
+      const currencyMatch = country.currency.match(/\(([A-Z]{3})\)/);
+      if (!currencyMatch) return;
+
+      const currencyCode = currencyMatch[1];
+      setLoadingRates(true);
+
+      try {
+        const { data, error } = await supabase.functions.invoke('get-exchange-rates', {
+          body: { currencyCode }
+        });
+
+        if (error) throw error;
+
+        if (data?.rates) {
+          setExchangeRates(data.rates);
+        }
+      } catch (error) {
+        console.error('Error fetching exchange rates:', error);
+      } finally {
+        setLoadingRates(false);
+      }
+    };
+
+    fetchExchangeRates();
+  }, [country.currency]);
+
   const getVisaBadgeVariant = (visa: string) => {
     const lowerVisa = visa.toLowerCase();
     if (lowerVisa.includes("visa-free") || lowerVisa.includes("visa free")) {
@@ -37,6 +72,15 @@ export function CountryInfoTable({ country }: CountryInfoTableProps) {
     }
     return "destructive";
   };
+
+  const formatExchangeRate = (rate: number) => {
+    return rate.toFixed(2);
+  };
+
+  // Extract currency name and code
+  const currencyMatch = country.currency.match(/^(.*)\s*\(([A-Z]{3})\)$/);
+  const currencyName = currencyMatch ? currencyMatch[1] : country.currency;
+  const currencyCode = currencyMatch ? currencyMatch[2] : "";
 
   const tableData = [
     { label: "Capital City", value: country.capital_city },
@@ -84,6 +128,28 @@ export function CountryInfoTable({ country }: CountryInfoTableProps) {
             ))}
           </TableBody>
         </Table>
+
+        {currencyCode && (
+          <div className="mt-6 pt-6 border-t">
+            <h3 className="text-lg font-semibold mb-4">Exchange Rates (1 {currencyCode})</h3>
+            {loadingRates ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : exchangeRates ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {Object.entries(exchangeRates).map(([currency, rate]) => (
+                  <div key={currency} className="bg-muted/50 rounded-lg p-4">
+                    <div className="text-sm text-muted-foreground">{currency}</div>
+                    <div className="text-2xl font-bold">{formatExchangeRate(rate)}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">Exchange rates unavailable</p>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
