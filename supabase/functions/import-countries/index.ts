@@ -47,10 +47,14 @@ serve(async (req) => {
     const normalized = inputRows
       .map((r) => ({
         country_name: r.country_name ?? r.Country ?? r.country ?? '',
+        capital_city: r.capital_city ?? r["Capital City"] ?? '',
         official_languages: r.official_languages ?? r["Official Languages"] ?? '',
         currency: r.currency ?? r.Currency ?? '',
+        time_difference: r.time_difference ?? r["Time Difference from IST"] ?? '',
+        popular_destinations: r.popular_destinations ?? r["Popular Destinations"] ?? '',
+        major_airports: r.major_airports ?? r["Major International Airport(s)"] ?? '',
         visa_requirement: r.visa_requirement ?? r["Visa Requirement for Indians"] ?? r["Visa Status"] ?? '',
-        embassy_presence: r.embassy_presence ?? r["Indian Embassy/High Commission Presence"] ?? r["Indian Embassy Present"] ?? '',
+        indian_embassy: r.indian_embassy ?? r["Indian Embassy/High Commission"] ?? r["Indian Embassy/High Commission Presence"] ?? '',
         flight_options: r.flight_options ?? r["Flight Options from India"] ?? r["Flight Connectivity from India"] ?? '',
       }))
       .filter((r) => r.country_name && typeof r.country_name === 'string');

@@ -16,34 +16,46 @@ export type Database = {
     Tables: {
       countries: {
         Row: {
+          capital_city: string | null
           country_name: string
           created_at: string | null
           currency: string
-          embassy_presence: string
-          flight_options: string
+          flight_options: string | null
           id: string
-          official_languages: string
-          visa_requirement: string
+          indian_embassy: string | null
+          major_airports: string | null
+          official_languages: string | null
+          popular_destinations: string | null
+          time_difference: string | null
+          visa_requirement: string | null
         }
         Insert: {
+          capital_city?: string | null
           country_name: string
           created_at?: string | null
           currency: string
-          embassy_presence: string
-          flight_options: string
+          flight_options?: string | null
           id?: string
-          official_languages: string
-          visa_requirement: string
+          indian_embassy?: string | null
+          major_airports?: string | null
+          official_languages?: string | null
+          popular_destinations?: string | null
+          time_difference?: string | null
+          visa_requirement?: string | null
         }
         Update: {
+          capital_city?: string | null
           country_name?: string
           created_at?: string | null
           currency?: string
-          embassy_presence?: string
-          flight_options?: string
+          flight_options?: string | null
           id?: string
-          official_languages?: string
-          visa_requirement?: string
+          indian_embassy?: string | null
+          major_airports?: string | null
+          official_languages?: string | null
+          popular_destinations?: string | null
+          time_difference?: string | null
+          visa_requirement?: string | null
         }
         Relationships: []
       }

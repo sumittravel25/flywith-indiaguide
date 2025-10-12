@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CountrySelector } from "@/components/CountrySelector";
-import { CountryInfo } from "@/components/CountryInfo";
+import { CountryInfoTable } from "@/components/CountryInfoTable";
 import { DataImporter } from "@/components/DataImporter";
 import { Button } from "@/components/ui/button";
 import { Loader2, Globe2 } from "lucide-react";
@@ -10,10 +10,14 @@ import { useToast } from "@/hooks/use-toast";
 interface Country {
   id: string;
   country_name: string;
+  capital_city: string;
   official_languages: string;
   currency: string;
+  time_difference: string;
+  popular_destinations: string;
+  major_airports: string;
   visa_requirement: string;
-  embassy_presence: string;
+  indian_embassy: string;
   flight_options: string;
 }
 
@@ -33,7 +37,35 @@ const Index = () => {
 
   useEffect(() => {
     fetchCountries();
+    importCountriesData();
   }, []);
+
+  const importCountriesData = async () => {
+    try {
+      const { count } = await supabase
+        .from("countries")
+        .select("*", { count: "exact", head: true });
+
+      if (count && count >= 195) {
+        return;
+      }
+
+      const response = await fetch('/data/detail_info_about_all_contries.xlsx');
+      const arrayBuffer = await response.arrayBuffer();
+      const XLSX = await import('xlsx');
+      const workbook = XLSX.read(arrayBuffer, { type: "array" });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+      await supabase.functions.invoke("import-countries", {
+        body: { rows: jsonData },
+      });
+
+      await fetchCountries();
+    } catch (error) {
+      console.error("Error importing countries:", error);
+    }
+  };
 
   const fetchCountries = async () => {
     try {
@@ -115,10 +147,6 @@ const Index = () => {
 
       {/* Search Section */}
       <div className="max-w-4xl mx-auto px-4 -mt-8 space-y-6">
-        {countries.length < 195 && (
-          <DataImporter />
-        )}
-        
         {countries.length > 0 && (
           <div className="bg-card rounded-xl shadow-card p-8 space-y-6">
             <div className="space-y-4">
@@ -154,7 +182,7 @@ const Index = () => {
       {/* Results Section */}
       {countryData && (
         <div className="max-w-4xl mx-auto px-4 py-12">
-          <CountryInfo country={countryData} />
+          <CountryInfoTable country={countryData} />
         </div>
       )}
 
