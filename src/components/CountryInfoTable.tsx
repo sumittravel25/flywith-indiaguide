@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -32,6 +33,7 @@ interface CountryInfoTableProps {
 export function CountryInfoTable({ country }: CountryInfoTableProps) {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number> | null>(null);
   const [loadingRates, setLoadingRates] = useState(false);
+  const [inrAmount, setInrAmount] = useState<string>("100");
   const singleRate = exchangeRates ? Object.entries(exchangeRates)[0] : null;
 
   useEffect(() => {
@@ -79,7 +81,14 @@ export function CountryInfoTable({ country }: CountryInfoTableProps) {
   };
 
   const formatExchangeRate = (rate: number) => {
-    return rate.toFixed(2);
+    return rate.toFixed(4);
+  };
+
+  const calculateConversion = () => {
+    if (!singleRate || !inrAmount) return "0.00";
+    const amount = parseFloat(inrAmount);
+    if (isNaN(amount)) return "0.00";
+    return (amount * singleRate[1]).toFixed(2);
   };
 
   // Extract currency name and code
@@ -136,22 +145,40 @@ export function CountryInfoTable({ country }: CountryInfoTableProps) {
 
         {currencyCode && (
           <div className="mt-6 pt-6 border-t">
-            <h3 className="text-lg font-semibold mb-4">Exchange Rates (1 INR)</h3>
+            <h3 className="text-lg font-semibold mb-4">Currency Converter</h3>
             {loadingRates ? (
               <div className="flex items-center justify-center py-4">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
               </div>
-            ) : exchangeRates ? (
-              singleRate ? (
-                <div className="bg-muted/50 rounded-lg p-4 text-center">
-                  <div className="text-sm text-muted-foreground">1 INR equals</div>
-                  <div className="text-2xl font-bold">
-                    {formatExchangeRate(singleRate[1])} {singleRate[0]}
+            ) : singleRate ? (
+              <div className="space-y-4">
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <div className="text-xs text-muted-foreground mb-2">Exchange Rate</div>
+                  <div className="text-sm font-medium">
+                    1 INR = {formatExchangeRate(singleRate[1])} {singleRate[0]}
                   </div>
                 </div>
-              ) : (
-                <p className="text-muted-foreground">Exchange rates unavailable</p>
-              )
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Indian Rupees (INR)</label>
+                    <Input
+                      type="number"
+                      value={inrAmount}
+                      onChange={(e) => setInrAmount(e.target.value)}
+                      placeholder="Enter amount"
+                      className="text-lg"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{currencyName} ({currencyCode})</label>
+                    <div className="h-10 px-3 py-2 bg-muted rounded-md flex items-center text-lg font-semibold">
+                      {calculateConversion()}
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : (
               <p className="text-muted-foreground">Exchange rates unavailable</p>
             )}
