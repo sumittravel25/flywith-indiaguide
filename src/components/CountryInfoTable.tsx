@@ -32,6 +32,7 @@ interface CountryInfoTableProps {
 export function CountryInfoTable({ country }: CountryInfoTableProps) {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number> | null>(null);
   const [loadingRates, setLoadingRates] = useState(false);
+  const singleRate = exchangeRates ? Object.entries(exchangeRates)[0] : null;
 
   useEffect(() => {
     const fetchExchangeRates = async () => {
@@ -50,7 +51,11 @@ export function CountryInfoTable({ country }: CountryInfoTableProps) {
         if (error) throw error;
 
         if (data?.rates) {
-          setExchangeRates(data.rates);
+          const inrPerUnitOfCountry = data.rates.INR;
+          if (typeof inrPerUnitOfCountry === 'number' && inrPerUnitOfCountry > 0) {
+            const oneINRInCountry = 1 / inrPerUnitOfCountry;
+            setExchangeRates({ [currencyCode]: oneINRInCountry });
+          }
         }
       } catch (error) {
         console.error('Error fetching exchange rates:', error);
@@ -131,20 +136,22 @@ export function CountryInfoTable({ country }: CountryInfoTableProps) {
 
         {currencyCode && (
           <div className="mt-6 pt-6 border-t">
-            <h3 className="text-lg font-semibold mb-4">Exchange Rates (1 {currencyCode})</h3>
+            <h3 className="text-lg font-semibold mb-4">Exchange Rates (1 INR)</h3>
             {loadingRates ? (
               <div className="flex items-center justify-center py-4">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
               </div>
             ) : exchangeRates ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {Object.entries(exchangeRates).map(([currency, rate]) => (
-                  <div key={currency} className="bg-muted/50 rounded-lg p-4">
-                    <div className="text-sm text-muted-foreground">{currency}</div>
-                    <div className="text-2xl font-bold">{formatExchangeRate(rate)}</div>
+              singleRate ? (
+                <div className="bg-muted/50 rounded-lg p-4 text-center">
+                  <div className="text-sm text-muted-foreground">1 INR equals</div>
+                  <div className="text-2xl font-bold">
+                    {formatExchangeRate(singleRate[1])} {singleRate[0]}
                   </div>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <p className="text-muted-foreground">Exchange rates unavailable</p>
+              )
             ) : (
               <p className="text-muted-foreground">Exchange rates unavailable</p>
             )}
