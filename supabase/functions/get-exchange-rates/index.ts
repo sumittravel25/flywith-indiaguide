@@ -20,9 +20,9 @@ serve(async (req) => {
 
     console.log(`Fetching exchange rates for: ${currencyCode}`);
 
-    // Fetch latest rates using exchangerate-api.com
+    // Fetch latest rates using exchangerate.host
     const response = await fetch(
-      `https://v6.exchangerate-api.com/v6/${apiKey}/latest/${currencyCode}`
+      `https://api.exchangerate.host/latest?base=${currencyCode}&symbols=INR,USD,EUR,GBP&apikey=${apiKey}`
     );
 
     if (!response.ok) {
@@ -34,17 +34,17 @@ serve(async (req) => {
     const data = await response.json();
     console.log('Exchange rate response:', data);
 
-    if (data.result !== 'success') {
+    if (!data.success) {
       console.error('API returned error:', data);
-      throw new Error(data['error-type'] || 'Failed to fetch exchange rates');
+      throw new Error(data.error?.info || 'Failed to fetch exchange rates');
     }
 
     // Extract only the currencies we need
     const filteredRates = {
-      INR: data.conversion_rates.INR,
-      USD: data.conversion_rates.USD,
-      EUR: data.conversion_rates.EUR,
-      GBP: data.conversion_rates.GBP,
+      INR: data.rates.INR,
+      USD: data.rates.USD,
+      EUR: data.rates.EUR,
+      GBP: data.rates.GBP,
     };
 
     return new Response(
