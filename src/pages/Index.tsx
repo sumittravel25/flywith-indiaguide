@@ -48,7 +48,15 @@ const Index = () => {
         .from("countries")
         .select("*", { count: "exact", head: true });
 
-      if (count && count >= 195) {
+      // Re-import if dataset is incomplete OR visa portal links are missing
+      const { data: missingLinks } = await supabase
+        .from("countries")
+        .select("id")
+        .or('visa_portal_link.is.null,visa_portal_link.eq.', { foreignTable: undefined })
+        .limit(1);
+
+      const shouldImport = !count || count < 195 || (missingLinks && missingLinks.length > 0);
+      if (!shouldImport) {
         return;
       }
 
