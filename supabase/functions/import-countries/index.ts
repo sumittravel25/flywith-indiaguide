@@ -53,9 +53,10 @@ serve(async (req) => {
         time_difference: r.time_difference ?? r["Time Difference from IST"] ?? '',
         popular_destinations: r.popular_destinations ?? r["Popular Destinations"] ?? '',
         major_airports: r.major_airports ?? r["Major International Airport(s)"] ?? '',
-        visa_requirement: r.visa_requirement ?? r["Visa Requirement for Indians"] ?? r["Visa Status"] ?? '',
-        indian_embassy: r.indian_embassy ?? r["Indian Embassy/High Commission"] ?? r["Indian Embassy/High Commission Presence"] ?? '',
-        flight_options: r.flight_options ?? r["Flight Options from India"] ?? r["Flight Connectivity from India"] ?? '',
+        visa_portal_link: r.visa_portal_link ?? r["Actual Visa Application Link/Portal (for Indian Citizens)"] ?? '',
+        visa_requirement: r.visa_requirement ?? r["Visa Requirement"] ?? r["Visa Requirement for Indians"] ?? r["Visa Status"] ?? '',
+        indian_embassy: r.indian_embassy ?? r["Indian Embassy"] ?? r["Indian Embassy/High Commission"] ?? r["Indian Embassy/High Commission Presence"] ?? '',
+        flight_options: r.flight_options ?? r["Flight Options"] ?? r["Flight Options from India"] ?? r["Flight Connectivity from India"] ?? '',
       }))
       .filter((r) => r.country_name && typeof r.country_name === 'string');
 

@@ -17,6 +17,7 @@ interface Country {
   time_difference: string;
   popular_destinations: string;
   major_airports: string;
+  visa_portal_link: string;
   visa_requirement: string;
   indian_embassy: string;
   flight_options: string;

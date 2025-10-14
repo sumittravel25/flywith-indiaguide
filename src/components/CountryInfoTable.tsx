@@ -21,6 +21,7 @@ interface CountryData {
   time_difference: string;
   popular_destinations: string;
   major_airports: string;
+  visa_portal_link: string;
   visa_requirement: string;
   indian_embassy: string;
   flight_options: string;
@@ -108,6 +109,11 @@ export function CountryInfoTable({ country }: CountryInfoTableProps) {
       value: country.visa_requirement,
       isBadge: true 
     },
+    { 
+      label: "Visa Application Portal", 
+      value: country.visa_portal_link,
+      isLink: true 
+    },
     { label: "Indian Embassy/High Commission", value: country.indian_embassy },
     { label: "Flight Options from India", value: country.flight_options },
   ];
@@ -134,6 +140,15 @@ export function CountryInfoTable({ country }: CountryInfoTableProps) {
                     <Badge variant={getVisaBadgeVariant(row.value)}>
                       {row.value}
                     </Badge>
+                  ) : (row as any).isLink && row.value ? (
+                    <a 
+                      href={row.value.startsWith('http') ? row.value : `https://${row.value}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      {row.value}
+                    </a>
                   ) : (
                     row.value
                   )}

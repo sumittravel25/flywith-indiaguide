@@ -22,11 +22,16 @@ export function DataImporter() {
     // Map headers to our schema
     const rows = json.map((row) => ({
       country_name: row["Country"] || row["Country Name"] || row.country_name || row.country,
+      capital_city: row["Capital City"] || row.capital_city || "",
       official_languages: row["Official Languages"] || row.official_languages || "",
       currency: row["Currency"] || row.currency || "",
-      visa_requirement: row["Visa Requirement for Indians"] || row["Visa Status"] || row.visa_requirement || "",
-      embassy_presence: row["Indian Embassy/High Commission Presence"] || row["Indian Embassy Present"] || row.embassy_presence || "",
-      flight_options: row["Flight Options from India"] || row["Flight Connectivity from India"] || row.flight_options || "",
+      time_difference: row["Time Difference from IST"] || row.time_difference || "",
+      popular_destinations: row["Popular Destinations"] || row.popular_destinations || "",
+      major_airports: row["Major International Airport(s)"] || row.major_airports || "",
+      visa_portal_link: row["Actual Visa Application Link/Portal (for Indian Citizens)"] || row.visa_portal_link || "",
+      visa_requirement: row["Visa Requirement"] || row["Visa Requirement for Indians"] || row.visa_requirement || "",
+      indian_embassy: row["Indian Embassy"] || row["Indian Embassy/High Commission"] || row.indian_embassy || "",
+      flight_options: row["Flight Options"] || row["Flight Options from India"] || row.flight_options || "",
     })).filter((r) => !!r.country_name);
 
     return rows;

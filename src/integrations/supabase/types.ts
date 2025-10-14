@@ -27,6 +27,7 @@ export type Database = {
           official_languages: string | null
           popular_destinations: string | null
           time_difference: string | null
+          visa_portal_link: string | null
           visa_requirement: string | null
         }
         Insert: {
@@ -41,6 +42,7 @@ export type Database = {
           official_languages?: string | null
           popular_destinations?: string | null
           time_difference?: string | null
+          visa_portal_link?: string | null
           visa_requirement?: string | null
         }
         Update: {
@@ -55,6 +57,7 @@ export type Database = {
           official_languages?: string | null
           popular_destinations?: string | null
           time_difference?: string | null
+          visa_portal_link?: string | null
           visa_requirement?: string | null
         }
         Relationships: []
