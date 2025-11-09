@@ -6,7 +6,6 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Country {
-  id: string;
   country_name: string;
 }
 
@@ -42,7 +41,7 @@ export function CountrySelector({ countries, value, onValueChange }: CountrySele
             <CommandGroup>
               {countries.map((country) => (
                 <CommandItem
-                  key={country.id}
+                  key={country.country_name}
                   value={country.country_name}
                   onSelect={(currentValue) => {
                     onValueChange(currentValue === value ? "" : currentValue);

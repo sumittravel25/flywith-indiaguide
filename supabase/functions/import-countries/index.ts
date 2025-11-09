@@ -30,6 +30,7 @@ serve(async (req) => {
       payload = {};
     }
 
+    const homeCountry = payload.homeCountry || "India";
     const inputRows: any[] = Array.isArray(payload)
       ? payload
       : Array.isArray(payload.rows)
@@ -46,7 +47,8 @@ serve(async (req) => {
     // Normalize incoming rows to match DB columns
     const normalized = inputRows
       .map((r) => ({
-        country_name: r.country_name ?? r.Country ?? r.country ?? '',
+        home_country: homeCountry,
+        destination_country: r.country_name ?? r.Country ?? r.country ?? '',
         capital_city: r.capital_city ?? r["Capital City"] ?? '',
         official_languages: r.official_languages ?? r["Official Languages"] ?? '',
         currency: r.currency ?? r.Currency ?? '',
@@ -55,10 +57,10 @@ serve(async (req) => {
         major_airports: r.major_airports ?? r["Major International Airport(s)"] ?? '',
         visa_portal_link: r.visa_portal_link ?? r["Actual Visa Application Link/Portal (for Indian Citizens)"] ?? '',
         visa_requirement: r.visa_requirement ?? r["Visa Requirement"] ?? r["Visa Requirement for Indians"] ?? r["Visa Status"] ?? '',
-        indian_embassy: r.indian_embassy ?? r["Indian Embassy"] ?? r["Indian Embassy/High Commission"] ?? r["Indian Embassy/High Commission Presence"] ?? '',
+        embassy_info: r.indian_embassy ?? r["Indian Embassy"] ?? r["Indian Embassy/High Commission"] ?? r["Indian Embassy/High Commission Presence"] ?? '',
         flight_options: r.flight_options ?? r["Flight Options"] ?? r["Flight Options from India"] ?? r["Flight Connectivity from India"] ?? '',
       }))
-      .filter((r) => r.country_name && typeof r.country_name === 'string');
+      .filter((r) => r.destination_country && typeof r.destination_country === 'string');
 
     if (!normalized.length) {
       return new Response(JSON.stringify({ error: 'Parsed 0 valid rows' }), {
@@ -70,8 +72,8 @@ serve(async (req) => {
     console.log(`Starting import of ${normalized.length} countries`);
 
     const { error } = await supabase
-      .from('countries')
-      .upsert(normalized, { onConflict: 'country_name' });
+      .from('travel_information')
+      .upsert(normalized, { onConflict: 'home_country,destination_country' });
 
     if (error) {
       console.error('Error importing countries:', error);

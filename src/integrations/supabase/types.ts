@@ -62,6 +62,57 @@ export type Database = {
         }
         Relationships: []
       }
+      travel_information: {
+        Row: {
+          capital_city: string | null
+          created_at: string | null
+          currency: string
+          destination_country: string
+          embassy_info: string | null
+          flight_options: string | null
+          home_country: string
+          id: string
+          major_airports: string | null
+          official_languages: string | null
+          popular_destinations: string | null
+          time_difference: string | null
+          visa_portal_link: string | null
+          visa_requirement: string | null
+        }
+        Insert: {
+          capital_city?: string | null
+          created_at?: string | null
+          currency: string
+          destination_country: string
+          embassy_info?: string | null
+          flight_options?: string | null
+          home_country: string
+          id?: string
+          major_airports?: string | null
+          official_languages?: string | null
+          popular_destinations?: string | null
+          time_difference?: string | null
+          visa_portal_link?: string | null
+          visa_requirement?: string | null
+        }
+        Update: {
+          capital_city?: string | null
+          created_at?: string | null
+          currency?: string
+          destination_country?: string
+          embassy_info?: string | null
+          flight_options?: string | null
+          home_country?: string
+          id?: string
+          major_airports?: string | null
+          official_languages?: string | null
+          popular_destinations?: string | null
+          time_difference?: string | null
+          visa_portal_link?: string | null
+          visa_requirement?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

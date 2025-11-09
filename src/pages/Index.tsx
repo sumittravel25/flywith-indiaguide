@@ -8,9 +8,10 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import traviloLogo from "@/assets/travilo-logo.png";
 
-interface Country {
+interface TravelInfo {
   id: string;
-  country_name: string;
+  home_country: string;
+  destination_country: string;
   capital_city: string;
   official_languages: string;
   currency: string;
@@ -19,40 +20,41 @@ interface Country {
   major_airports: string;
   visa_portal_link: string;
   visa_requirement: string;
-  indian_embassy: string;
+  embassy_info: string;
   flight_options: string;
 }
 
 interface CountryListItem {
-  id: string;
   country_name: string;
 }
 
 const Index = () => {
-  const [countries, setCountries] = useState<CountryListItem[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState("");
-  const [countryData, setCountryData] = useState<Country | null>(null);
+  const [homeCountries, setHomeCountries] = useState<CountryListItem[]>([]);
+  const [destinationCountries, setDestinationCountries] = useState<CountryListItem[]>([]);
+  const [selectedHomeCountry, setSelectedHomeCountry] = useState("India");
+  const [selectedDestination, setSelectedDestination] = useState("");
+  const [travelData, setTravelData] = useState<TravelInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
-  const [showImporter, setShowImporter] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchCountries();
+    fetchAllCountries();
     importCountriesData();
   }, []);
 
   const importCountriesData = async () => {
     try {
       const { count } = await supabase
-        .from("countries")
-        .select("*", { count: "exact", head: true });
+        .from("travel_information")
+        .select("*", { count: "exact", head: true })
+        .eq("home_country", "India");
 
-      // Re-import if dataset is incomplete OR visa portal links are missing
       const { data: missingLinks } = await supabase
-        .from("countries")
+        .from("travel_information")
         .select("id")
-        .or('visa_portal_link.is.null,visa_portal_link.eq.', { foreignTable: undefined })
+        .eq("home_country", "India")
+        .or('visa_portal_link.is.null,visa_portal_link.eq.')
         .limit(1);
 
       const shouldImport = !count || count < 195 || (missingLinks && missingLinks.length > 0);
@@ -68,25 +70,40 @@ const Index = () => {
       const jsonData = XLSX.utils.sheet_to_json(firstSheet);
 
       await supabase.functions.invoke("import-countries", {
-        body: { rows: jsonData },
+        body: { rows: jsonData, homeCountry: "India" },
       });
 
-      await fetchCountries();
+      await fetchAllCountries();
     } catch (error) {
       console.error("Error importing countries:", error);
     }
   };
 
-  const fetchCountries = async () => {
+  const fetchAllCountries = async () => {
     try {
-      const { data, error } = await supabase
-        .from("countries")
-        .select("id, country_name")
-        .order("country_name");
+      // Get unique home countries
+      const { data: homeData, error: homeError } = await supabase
+        .from("travel_information")
+        .select("home_country")
+        .order("home_country");
 
-      if (error) throw error;
+      if (homeError) throw homeError;
 
-      setCountries(data || []);
+      const uniqueHome = Array.from(new Set(homeData?.map(c => c.home_country) || []))
+        .map(name => ({ country_name: name }));
+      setHomeCountries(uniqueHome);
+
+      // Get unique destination countries
+      const { data: destData, error: destError } = await supabase
+        .from("travel_information")
+        .select("destination_country")
+        .order("destination_country");
+
+      if (destError) throw destError;
+
+      const uniqueDest = Array.from(new Set(destData?.map(c => c.destination_country) || []))
+        .map(name => ({ country_name: name }));
+      setDestinationCountries(uniqueDest);
     } catch (error) {
       console.error("Error fetching countries:", error);
       toast({
@@ -100,10 +117,10 @@ const Index = () => {
   };
 
   const handleGetInfo = async () => {
-    if (!selectedCountry) {
+    if (!selectedDestination) {
       toast({
-        title: "No country selected",
-        description: "Please select a country first.",
+        title: "No destination selected",
+        description: "Please select a destination country.",
         variant: "destructive",
       });
       return;
@@ -112,19 +129,30 @@ const Index = () => {
     setSearching(true);
     try {
       const { data, error } = await supabase
-        .from("countries")
+        .from("travel_information")
         .select("*")
-        .eq("country_name", selectedCountry)
-        .single();
+        .eq("home_country", selectedHomeCountry)
+        .eq("destination_country", selectedDestination)
+        .maybeSingle();
 
       if (error) throw error;
 
-      setCountryData(data);
+      if (!data) {
+        toast({
+          title: "No data available",
+          description: `Travel information for ${selectedHomeCountry} → ${selectedDestination} is not available yet.`,
+          variant: "destructive",
+        });
+        setTravelData(null);
+        return;
+      }
+
+      setTravelData(data);
     } catch (error) {
-      console.error("Error fetching country data:", error);
+      console.error("Error fetching travel data:", error);
       toast({
         title: "Error",
-        description: "Failed to load country information. Please try again.",
+        description: "Failed to load travel information. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -156,22 +184,33 @@ const Index = () => {
 
       {/* Search Section */}
       <div className="max-w-4xl mx-auto px-4 -mt-8 space-y-6">
-        {countries.length > 0 && (
+        {homeCountries.length > 0 && destinationCountries.length > 0 && (
           <div className="bg-card rounded-xl shadow-card p-8 space-y-6">
             <div className="space-y-4">
               <label className="text-lg font-semibold text-foreground">
-                Select a Country
+                Your Home Country
               </label>
               <CountrySelector
-                countries={countries}
-                value={selectedCountry}
-                onValueChange={setSelectedCountry}
+                countries={homeCountries}
+                value={selectedHomeCountry}
+                onValueChange={setSelectedHomeCountry}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-lg font-semibold text-foreground">
+                Destination Country
+              </label>
+              <CountrySelector
+                countries={destinationCountries}
+                value={selectedDestination}
+                onValueChange={setSelectedDestination}
               />
             </div>
 
             <Button
               onClick={handleGetInfo}
-              disabled={!selectedCountry || searching}
+              disabled={!selectedDestination || searching}
               className="w-full h-14 text-lg font-semibold"
               size="lg"
             >
@@ -181,7 +220,7 @@ const Index = () => {
                   Loading...
                 </>
               ) : (
-                "Get Info"
+                "Get Travel Info"
               )}
             </Button>
           </div>
@@ -189,15 +228,15 @@ const Index = () => {
       </div>
 
       {/* Results Section */}
-      {countryData && (
+      {travelData && (
         <div className="max-w-4xl mx-auto px-4 py-12">
-          <CountryInfoTable country={countryData} />
+          <CountryInfoTable country={travelData} />
         </div>
       )}
 
       {/* Footer */}
       <footer className="py-8 text-center text-muted-foreground">
-        <p>Travel information for Indian passport holders</p>
+        <p>Travel information for all nationalities</p>
       </footer>
     </div>
   );

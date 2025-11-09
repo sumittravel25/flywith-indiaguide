@@ -14,7 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 
 interface CountryData {
-  country_name: string;
+  home_country: string;
+  destination_country: string;
   capital_city: string;
   official_languages: string;
   currency: string;
@@ -23,7 +24,7 @@ interface CountryData {
   major_airports: string;
   visa_portal_link: string;
   visa_requirement: string;
-  indian_embassy: string;
+  embassy_info: string;
   flight_options: string;
 }
 
@@ -105,7 +106,7 @@ export function CountryInfoTable({ country }: CountryInfoTableProps) {
     { label: "Popular Destinations", value: country.popular_destinations },
     { label: "Major International Airport(s)", value: country.major_airports },
     { 
-      label: "Visa Requirement for Indians", 
+      label: `Visa Requirement for ${country.home_country} Citizens`, 
       value: country.visa_requirement,
       isBadge: true 
     },
@@ -114,14 +115,14 @@ export function CountryInfoTable({ country }: CountryInfoTableProps) {
       value: country.visa_portal_link,
       isLink: true 
     },
-    { label: "Indian Embassy/High Commission", value: country.indian_embassy },
-    { label: "Flight Options from India", value: country.flight_options },
+    { label: `${country.home_country} Embassy/Consulate`, value: country.embassy_info },
+    { label: `Flight Options from ${country.home_country}`, value: country.flight_options },
   ];
 
   return (
     <Card className="shadow-card">
       <CardHeader>
-        <CardTitle className="text-3xl">{country.country_name}</CardTitle>
+        <CardTitle className="text-3xl">{country.destination_country}</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
