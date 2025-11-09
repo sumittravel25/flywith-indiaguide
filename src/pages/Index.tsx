@@ -177,7 +177,7 @@ const Index = () => {
             <img src={traviloLogo} alt="TRAVILO Logo" className="h-24 w-auto" />
           </div>
           <p className="text-xl text-white/90">
-            Discover essential travel information for Indian travelers worldwide
+            Discover essential travel information for travelers worldwide
           </p>
         </div>
       </div>
@@ -188,7 +188,7 @@ const Index = () => {
           <div className="bg-card rounded-xl shadow-card p-8 space-y-6">
             <div className="space-y-4">
               <label className="text-lg font-semibold text-foreground">
-                Your Home Country
+                Your Nationality
               </label>
               <CountrySelector
                 countries={homeCountries}
